@@ -1,0 +1,44 @@
+// I am using an school database with the collection name is students. (you can write whatever name you want for database and collection)
+
+************************** Basic terminal codes for creating the database and manipulating it ***********************
+
+1. cls - to clear the screen/terminal
+2. exit - to exit the screen/terminal
+3. if you like to use vsCode then there is one extension called mongodb by officially MongoDB.
+4. mongosh - to establish an connection
+5. show dbs - to show the databased already present
+6. for ex to use admin database - use admin
+// imp:-  if we need to use the database but it doesn't exist so simply use ""use "database name""" but by this one we cannot see the database as we type ""show db"" because it's empty so we need to create an collection so that we can see the database.
+
+7. db.createCollection("any name of the collection which you need to create") - used to create an collection in database.
+8. db.dropDatabase() - to drop the database.
+9. db.student.insertOne({}) - used to insert an data in the collection.
+10. db.students.find() - to see all the data in the collection.
+11. db.students.insertMany([{}, {}, {}]) - by this we can insert multiple data at one time.
+
+
+********************************* Datatypes in mongoDb **************************************
+
+1. name:"Larry"			 - String
+2. age: 32			 - integer
+3. gpa: 3.5			 - double
+4. fullTime: false		 - Boolean
+5. registrationDate: new Date()  - can insert a registration date automatically 
+6. graduationDate: null		 - null value which can be later overwrite.
+7. courses: ["Biology", "Chemistry", "Calculus"]  	- to store more values in one variable
+8. address: {street:"123 fake St.", city:"Temp", zip: 1234}  - nested documents
+
+
+***************************** Sorting and limiting *******************************
+1. to sort the data in alphabetically order we use "1" ex: db.student.find().sort({name:1})
+2. to sort the data in non-alphabetically order we use "-1" ex: db.student.find().sort({name:-1})
+3. to sort the data in ascending order we use "1"  ex: db.student.find().sort({gpa:1})
+
+// limit is used in case where we want any specific output/ data from the database/collection
+1. db.student.find().limit(1) 		- this will give the data which was stored at the first id and by this we can get the first document.
+2. db.student.find().limit(3)		- this will give the data which was stored at the first three id's and by this we can get the first three documents. 
+3. db.student.find().sort({gpa:-1}).limit(1) - this will give the data whcih has the highest gpa and the limit will give the number of documents which we define here we define 1 document so get get the output of student who has the highest gpa.
+4. db.student.find().sort({gpa:1}).limit(1)  - this will give the data whcih has the lowest gpa and the limit will give the number of documents which we define here we define 1 document so get get the output of student who has the highest gpa.
+
+
+***************************** find method ***************************************
