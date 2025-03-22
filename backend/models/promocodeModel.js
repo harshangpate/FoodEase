@@ -1,3 +1,4 @@
+// promocode model
 import mongoose from "mongoose";
 
 const promocodeSchema = new mongoose.Schema({

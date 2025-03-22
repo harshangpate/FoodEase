@@ -1,3 +1,4 @@
+// food model
 import mongoose from "mongoose";
 
 const foodSchema = new mongoose.Schema({
