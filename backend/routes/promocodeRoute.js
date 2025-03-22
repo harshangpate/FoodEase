@@ -1,0 +1,17 @@
+import express from "express";
+import { validatePromocode, createPromocode, getAllPromocodes, getActivePromocodes, togglePromoStatus, recordUsedPromocode } from "../controllers/promocodecontroller.js";
+import authMiddleware from "../middleware/auth.js";
+
+const router = express.Router();
+
+// Public route - validate a promocode
+router.post("/validate", validatePromocode);
+router.get("/active", getActivePromocodes);
+router.patch("/toggle/:id", authMiddleware, togglePromoStatus);
+router.post("/record-usage", recordUsedPromocode);
+
+// Admin routes - require admin authentication
+router.post("/create", authMiddleware, createPromocode);
+router.get("/list", authMiddleware, getAllPromocodes);
+
+export default router;
