@@ -60,7 +60,7 @@ const Offers = () => {
               </div>
               <button 
                 className="use-promo-btn"
-                onClick={() => navigate('/cart')}
+                onClick={() => navigate('/')}
               >
                 Order Now
               </button>

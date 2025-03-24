@@ -106,7 +106,7 @@ const Cart = () => {
                   </>
                 )}
                 <div className="cart-total-details">
-                  <p>Delivery Fee</p>
+                  <p>platform Fee</p>
                   <p>{currency}{getTotalCartAmount()===0?0:deliveryCharge}</p>
                 </div>
                 <hr />

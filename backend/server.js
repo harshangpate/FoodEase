@@ -1,13 +1,12 @@
-// Set up Express server with middleware
-import express  from "express"
-import cors from 'cors'
+import express from 'express';
+import cors from 'cors';
 import { connectDB } from "./config/db.js"
 import userRouter from "./routes/userRoute.js"
 import foodRouter from "./routes/foodRoute.js"
 import 'dotenv/config'
 import cartRouter from "./routes/cartRoute.js"
 import orderRouter from "./routes/orderRoute.js"
-import promocodeRoute from './routes/promocoderoute.js';
+import promocodeRoute from './routes/promocodeRoute.js';
 import dotenv from 'dotenv'
 import adminRouter from "./routes/adminRoute.js";
 
@@ -21,7 +20,7 @@ app.use(express.json())
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174', 'http://[::1]:5173', 'http://[::1]:5174'],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'token']
 }));
 

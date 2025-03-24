@@ -7,7 +7,11 @@ const router = express.Router();
 // Public route - validate a promocode
 router.post("/validate", validatePromocode);
 router.get("/active", getActivePromocodes);
+// Change this line
 router.patch("/toggle/:id", authMiddleware, togglePromoStatus);
+
+// To this
+router.put("/toggle/:id", authMiddleware, togglePromoStatus);
 router.post("/record-usage", recordUsedPromocode);
 
 // Admin routes - require admin authentication

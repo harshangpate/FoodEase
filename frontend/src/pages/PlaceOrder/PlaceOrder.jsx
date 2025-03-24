@@ -217,7 +217,7 @@ const PlaceOrder = () => {
                         )}
                         
                         <div className="cart-total-details">
-                            <p>Pickup Charge</p>
+                            <p>platform Fee</p>
                             <p>{currency}{getTotalCartAmount() === 0 ? 0 : deliveryCharge}</p>
                         </div>
                         

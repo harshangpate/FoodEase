@@ -31,9 +31,9 @@ const placeOrder = async (req, res) => {
         let discountedBaseAmount = Math.max(0, baseAmount - discountAmount);
         console.log("Discounted base amount:", discountedBaseAmount);
         
-        // Now add delivery charge to the discounted base amount
+        // Now add platform Fee to the discounted base amount
         let totalAmount = discountedBaseAmount + parseFloat(deliveryCharge);
-        console.log("After delivery charge:", totalAmount);
+        console.log("After platform Fee:", totalAmount);
         
         // Add rush charges if applicable
         if (req.body.orderType === 'rush') {
@@ -114,9 +114,9 @@ const placeOrderCod = async (req, res) => {
         // Only add delivery charge if it's not already included
         if (!req.body.includesDeliveryCharge) {
             totalAmount += parseFloat(deliveryCharge);
-            console.log("COD - After delivery charge:", totalAmount);
+            console.log("COD - After platform Fee", totalAmount);
         } else {
-            console.log("COD - Delivery charge already included in base amount");
+            console.log("COD - platform Fee already included in base amount");
         }
         
         if (req.body.orderType === 'rush') {

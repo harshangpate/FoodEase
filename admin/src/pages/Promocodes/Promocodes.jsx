@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// Replace this:
-import axios from 'axios';
-
-// With this:
 import api from '../../utils/axiosConfig';
-
-// And then use api instead of axios for your API calls:
-// For example, change:
-// const response = await axios.get('http://localhost:5000/api/promocodes');
-// To:
-// const response = await api.get('/api/promocodes');
 import { toast } from 'react-toastify';
 import './Promocodes.css';
 
@@ -31,7 +21,7 @@ const Promocodes = () => {
   const fetchPromocodes = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${url}/api/promocode/list`, {
+      const response = await api.get(`/api/promocode/list`, {
         headers: { token }
       });
       if (response.data.success) {
@@ -45,14 +35,15 @@ const Promocodes = () => {
     }
   };
 
+  // In your togglePromoStatus function, change from PATCH to PUT
   const togglePromoStatus = async (id, currentStatus) => {
     try {
-      const response = await axios.put(
-        `${url}/api/promocode/toggle/${id}`,
-        { isActive: !currentStatus },
+      const response = await api.put(
+        `/api/promocode/toggle/${id}`,
+        { isActive: !currentStatus },  // Include the new status in the body
         { headers: { token } }
       );
-
+  
       if (response.data.success) {
         toast.success(`Promocode ${currentStatus ? 'deactivated' : 'activated'} successfully`);
         fetchPromocodes(); // Refresh the list
@@ -73,8 +64,8 @@ const Promocodes = () => {
     }
 
     try {
-      const response = await axios.post(
-        `${url}/api/promocode/create`,
+      const response = await api.post(
+        `/api/promocode/create`,
         formData,
         { headers: { token } }
       );
