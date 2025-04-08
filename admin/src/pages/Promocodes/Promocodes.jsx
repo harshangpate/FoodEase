@@ -166,7 +166,7 @@ const Promocodes = () => {
               />
             </div>
 
-            <div className="form-group checkbox-group">
+            {/* <div className="form-group checkbox-group">
               <label>
                 <input
                   type="checkbox"
@@ -176,7 +176,7 @@ const Promocodes = () => {
                 />
                 Welcome Code (first-time users only)
               </label>
-            </div>
+            </div> */}
 
             <button type="submit" className="create-btn">
               Create Promocode
