@@ -1,6 +1,7 @@
 // order model
 import mongoose from "mongoose";
 
+// Add these fields to your schema
 const orderSchema = new mongoose.Schema({
     userId: {type: String, required: true},
     items: { type: Array, required:true},
@@ -60,6 +61,23 @@ const orderSchema = new mongoose.Schema({
     promocodeUsed: {
         type: String,
         default: ''
+    },
+    paymentMethod: {
+        type: String,
+        enum: ['online', 'partial', 'cod'],
+        default: 'online'
+    },
+    isPartialPayment: {
+        type: Boolean,
+        default: false
+    },
+    paidAmount: {
+        type: Number,
+        default: 0
+    },
+    remainingAmount: {
+        type: Number,
+        default: 0
     }
 });
 

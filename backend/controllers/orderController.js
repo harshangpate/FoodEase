@@ -15,36 +15,62 @@ const MERCHANT_NAME = process.env.MERCHANT_NAME;
 
 // Placing User Order for Frontend using stripe
 // In placeOrder function, add status field
+// Modify the existing placeOrder function to handle partial payments
+// In the placeOrder function
 const placeOrder = async (req, res) => {
     try {
         const referenceId = crypto.randomBytes(6).toString('hex').toUpperCase();
         
-        // Calculate total amount with precision - start with base amount
-        let baseAmount = parseFloat(req.body.amount);
-        console.log("Base amount:", baseAmount);
+        // Use the values directly from the request if provided
+        let totalAmount, paidAmount, remainingAmount;
         
-        // Handle promocode discount first - only apply to the base amount
+        // Get payment method and partial payment status
+        const paymentMethod = req.body.paymentMethod || 'online';
+        const isPartialPayment = paymentMethod === 'partial';
+        
+        // Get discount amount
         const discountAmount = parseFloat(req.body.discountAmount || 0);
-        console.log("Discount amount:", discountAmount);
         
-        // Calculate discounted base amount (don't let it go below 0)
-        let discountedBaseAmount = Math.max(0, baseAmount - discountAmount);
-        console.log("Discounted base amount:", discountedBaseAmount);
+        if (req.body.totalAmount) {
+            // Use the pre-calculated values from the frontend
+            totalAmount = parseFloat(req.body.totalAmount);
+            paidAmount = parseFloat(req.body.paidAmount || totalAmount);
+            remainingAmount = parseFloat(req.body.remainingAmount || 0);
+        } else {
+            // Calculate if not provided
+            // Calculate total amount with precision - start with base amount
+            let baseAmount = parseFloat(req.body.amount);
+            console.log("Base amount:", baseAmount);
+            
+            console.log("Discount amount:", discountAmount);
+            
+            // Calculate discounted base amount (don't let it go below 0)
+            let discountedBaseAmount = Math.max(0, baseAmount - discountAmount);
+            console.log("Discounted base amount:", discountedBaseAmount);
+            
+            // Now add platform Fee to the discounted base amount
+            totalAmount = discountedBaseAmount + parseFloat(deliveryCharge);
+            console.log("After platform Fee:", totalAmount);
+            
+            // Add rush charges if applicable
+            if (req.body.orderType === 'rush') {
+                totalAmount += 20; // Rush order premium
+                console.log("After rush charge:", totalAmount);
+            }
         
-        // Now add platform Fee to the discounted base amount
-        let totalAmount = discountedBaseAmount + parseFloat(deliveryCharge);
-        console.log("After platform Fee:", totalAmount);
-        
-        // Add rush charges if applicable
-        if (req.body.orderType === 'rush') {
-            totalAmount += 20; // Rush order premium
-            console.log("After rush charge:", totalAmount);
+            // Ensure amount is properly formatted with 2 decimal places
+            totalAmount = parseFloat(totalAmount.toFixed(2));
+            
+            // Calculate actual payment amount based on payment method
+            paidAmount = isPartialPayment 
+                ? parseFloat((totalAmount * 0.4).toFixed(2))
+                : totalAmount;
+                
+            remainingAmount = isPartialPayment 
+                ? parseFloat((totalAmount * 0.6).toFixed(2))
+                : 0;
         }
-
-        // Ensure amount is properly formatted with 2 decimal places
-        totalAmount = parseFloat(totalAmount.toFixed(2));
-        console.log("Final amount:", totalAmount);
-
+        
         const promocodeUsed = req.body.promocodeUsed || '';
         const promocodeId = req.body.promocodeId || '';
 
@@ -62,8 +88,14 @@ const placeOrder = async (req, res) => {
             priority: req.body.orderType === 'rush' ? 1 : 0,
             rushCharges: req.body.orderType === 'rush' ? 20 : 0,
             discountAmount: discountAmount,
-            promocodeUsed: promocodeUsed
+            promocodeUsed: promocodeUsed,
+            // Add payment information
+            paymentMethod: paymentMethod,
+            isPartialPayment: isPartialPayment,
+            paidAmount: paidAmount,
+            remainingAmount: remainingAmount
         });
+        
         await newOrder.save();
         await userModel.findByIdAndUpdate(req.body.userId, { cartData: {} });
 
@@ -80,8 +112,8 @@ const placeOrder = async (req, res) => {
             }
         }
 
-        // Create UPI payment URL
-        const upiUrl = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=${MERCHANT_NAME}&am=${totalAmount.toFixed(2)}&tn=${referenceId}&cu=INR`;
+        // Create UPI payment URL with the correct amount
+        const upiUrl = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=${MERCHANT_NAME}&am=${paidAmount.toFixed(2)}&tn=${referenceId}&cu=INR`;
         
         // Generate QR code
         const qrCode = await QRCode.toDataURL(upiUrl);
@@ -90,7 +122,7 @@ const placeOrder = async (req, res) => {
             success: true,
             orderId: newOrder._id,
             qrCode: qrCode,
-            amount: totalAmount,
+            amount: paidAmount, // Send the exact paid amount
             referenceId: referenceId,
             upiId: MERCHANT_UPI_ID
         });
@@ -229,61 +261,49 @@ const verifyOrder = async (req, res) => {
     }
 };
 
-// Add this to your existing orderController.js
-
-// Update verifyPayment function with new features
+// Change from export const to just const
 const verifyPayment = async (req, res) => {
-    try {
-        const { orderId, referenceId } = req.body;
-        
-        if (!orderId || !referenceId) {
-            return res.json({ success: false, message: "Missing required fields" });
-        }
-
-        const order = await orderModel.findById(orderId);
-        if (!order) {
-            return res.json({ success: false, message: "Order not found" });
-        }
-
-        if (order.status !== "Awaiting Payment Verification") {
-            return res.json({ success: false, message: "Order is not awaiting payment verification" });
-        }
-
-        if (order.paymentExpiry && new Date() > order.paymentExpiry) {
-            return res.json({ success: false, message: "Payment verification time expired" });
-        }
-
-        if (order.referenceId !== referenceId) {
-            return res.json({ success: false, message: "Invalid reference ID" });
-        }
-
-        const paymentAttempt = {
-            referenceId,
-            attemptTime: new Date(),
-            status: "success"
-            // Removed verifiedBy since we don't have user._id
-        };
-
-        await orderModel.findByIdAndUpdate(orderId, {
-            status: "Food Processing",
-            payment: true,
-            verifiedAt: new Date(),
-            transactionDetails: {
-                referenceId,
-                verificationTime: new Date(),
-                paymentMethod: "UPI"
-            },
-            $push: { paymentAttempts: paymentAttempt }
-        });
-
-        return res.json({ 
-            success: true, 
-            message: "Payment verified successfully" 
-        });
-    } catch (error) {
-        console.error("Payment verification error:", error);
-        return res.json({ success: false, message: "Error verifying payment" });
+  try {
+    const { orderId, referenceId, paymentStatus } = req.body;
+    
+    if (!orderId || !referenceId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Order ID and Reference ID are required" 
+      });
     }
+    
+    const order = await orderModel.findById(orderId);
+    
+    if (!order) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Order not found" 
+      });
+    }
+    
+    // Update the order with payment verification details
+    order.referenceId = referenceId;
+    order.paymentVerified = true; // Explicitly set paymentVerified to true
+    
+    // Only update status if it's still awaiting verification
+    if (order.status === "Awaiting Payment Verification") {
+      order.status = "Order Received";
+    }
+    
+    await order.save();
+    
+    return res.json({ 
+      success: true, 
+      message: "Payment verified successfully" 
+    });
+  } catch (error) {
+    console.error("Payment verification error:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Server error while verifying payment" 
+    });
+  }
 };
 
 // Add new regeneratePayment function

@@ -153,3 +153,41 @@
     font-size: 0.9em;
     margin-top: -5px;
   }
+
+/* Add these styles to your existing CSS file */
+
+.payment-info {
+  margin: 10px 0;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #007bff;
+}
+
+.payment-type {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.payment-type.partial {
+  color: #e67e22;
+}
+
+.payment-type.full {
+  color: #27ae60;
+}
+
+.payment-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 0.9rem;
+}
+
+.payment-details p {
+  margin: 0;
+}
+
+.payment-details .remaining {
+  color: #e74c3c;
+}

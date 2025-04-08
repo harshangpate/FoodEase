@@ -24,7 +24,7 @@ const PlaceOrder = () => {
     const [scheduledTime, setScheduledTime] = useState('');
     const [timeLeft, setTimeLeft] = useState(300);
     const [timerInterval, setTimerInterval] = useState(null);
-    
+
     const [data, setData] = useState({
         firstName: "",
         lastName: "",
@@ -40,19 +40,21 @@ const PlaceOrder = () => {
     const calculatePaymentAmount = () => {
         // Start with the base amount (already discounted)
         let baseAmount = getTotalCartAmount() - discountAmount;
-        
+
         // Add delivery charge if not already included
         if (!includesDeliveryCharge) {
             baseAmount += deliveryCharge;
         }
-        
+
         // Add rush charges if applicable
         if (orderType === 'rush') {
             baseAmount += 20;
         }
-        
+
         // Calculate partial payment if needed
-        return paymentMethod === 'partial' ? (baseAmount * 0.4).toFixed(2) : baseAmount.toFixed(2);
+        return paymentMethod === 'partial'
+            ? (Math.round(baseAmount * 0.4 * 100) / 100).toFixed(2)
+            : baseAmount.toFixed(2);
     };
 
     const onChangeHandler = (event) => {
@@ -79,14 +81,15 @@ const PlaceOrder = () => {
         }
     }, [qrCode, timeLeft]);
 
+    // In the handleSubmit function
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!token) {
             toast.error("👋 Please login first");
             return;
         }
-    
+
         let orderItems = [];
         food_list.forEach((item) => {
             if (cartItems[item._id] > 0) {
@@ -106,26 +109,48 @@ const PlaceOrder = () => {
                 calculatedSubtotal += item.price * cartItems[item._id];
             }
         });
-        
-        console.log("Calculated subtotal:", calculatedSubtotal);
-        console.log("getTotalCartAmount():", getTotalCartAmount());
-        console.log("discountAmount:", discountAmount);
 
-        // Use the calculated subtotal instead of getTotalCartAmount()
+        console.log("Calculated subtotal:", calculatedSubtotal);
+        
+        // Use the calculated subtotal
         const subtotal = calculatedSubtotal;
         const discountedSubtotal = Math.max(0, subtotal - discountAmount);
         
+        // Calculate total amount including delivery and rush charges
+        const totalAmount = discountedSubtotal + 
+            (includesDeliveryCharge ? 0 : deliveryCharge) + 
+            (orderType === 'rush' ? 20 : 0);
+        
+        // For partial payment, calculate exactly 40% of the total
+        // For full payment, use the exact total
+        const paidAmount = paymentMethod === 'partial' 
+            ? parseFloat((totalAmount * 0.4).toFixed(2))
+            : totalAmount;
+        
+        const remainingAmount = paymentMethod === 'partial'
+            ? parseFloat((totalAmount * 0.6).toFixed(2))
+            : 0;
+        
+        // Prepare order data with the correct payment information
         const orderData = {
+            userId: JSON.parse(localStorage.getItem('user'))?._id,
             address: data,
             items: orderItems,
-            amount: subtotal, // Send the actual subtotal, not the discounted amount
+            amount: subtotal, // Send the original subtotal
             discountAmount: discountAmount,
             promocodeUsed: promocode,
             orderType: orderType,
-            scheduledTime: orderType === 'scheduled' ? scheduledTime : null
+            scheduledTime: orderType === 'scheduled' ? scheduledTime : null,
+            paymentMethod: paymentMethod,
+            isPartialPayment: paymentMethod === 'partial',
+            paidAmount: paidAmount,
+            remainingAmount: remainingAmount,
+            // Add explicit total amount to avoid recalculation on the server
+            totalAmount: totalAmount
         };
 
         try {
+            console.log("Sending order data:", orderData);
             const response = await axios.post(
                 `${url}/api/order/place`, 
                 orderData, 
@@ -136,11 +161,23 @@ const PlaceOrder = () => {
                 setReferenceId(response.data.referenceId);
                 setOrderId(response.data.orderId);
                 setTimeLeft(300);
+                
+                // REMOVED: Don't clear cart data here
+                // localStorage.removeItem('cartItems');
+                // setCartItems({});
+                
+                toast.success("Order placed successfully! Please complete payment.");
             }
         } catch (error) {
             console.error("Order error:", error);
             toast.error(error.response?.data?.message || "😕 Something went wrong");
         }
+    };
+
+    // Add a new function to handle viewing orders
+    const handleViewOrders = () => {
+    // Navigate to the orders page
+    navigate('/my-orders');
     };
 
     const formatTime = (seconds) => {
@@ -186,11 +223,11 @@ const PlaceOrder = () => {
                             <p>Schedule for Later</p>
                         </div>
                     </div>
-                    
+
                     {orderType === 'scheduled' && (
                         <div className="scheduled-time">
-                            <input 
-                                type="datetime-local" 
+                            <input
+                                type="datetime-local"
                                 value={scheduledTime}
                                 onChange={(e) => setScheduledTime(e.target.value)}
                                 min={new Date().toISOString().slice(0, 16)}
@@ -207,7 +244,7 @@ const PlaceOrder = () => {
                             <p>Subtotal</p>
                             <p>{currency}{getTotalCartAmount()}</p>
                         </div>
-                        
+
                         {/* Add discount display if discount exists */}
                         {discountAmount > 0 && (
                             <div className="cart-total-details">
@@ -215,30 +252,30 @@ const PlaceOrder = () => {
                                 <p>-{currency}{discountAmount}</p>
                             </div>
                         )}
-                        
+
                         <div className="cart-total-details">
                             <p>platform Fee</p>
                             <p>{currency}{getTotalCartAmount() === 0 ? 0 : deliveryCharge}</p>
                         </div>
-                        
+
                         {orderType === 'rush' && (
                             <div className="cart-total-details">
                                 <p>Rush Order Fee</p>
                                 <p>{currency}20</p>
                             </div>
                         )}
-                        
+
                         <hr />
-                        
+
                         <div className="cart-total-details">
                             <b>Total</b>
                             <b>{currency}{
-                                getTotalCartAmount() === 0 
-                                ? 0 
-                                : (getTotalCartAmount() - discountAmount) + (includesDeliveryCharge ? 0 : deliveryCharge) + (orderType === 'rush' ? 20 : 0)
+                                getTotalCartAmount() === 0
+                                    ? 0
+                                    : (getTotalCartAmount() - discountAmount) + (includesDeliveryCharge ? 0 : deliveryCharge) + (orderType === 'rush' ? 20 : 0)
                             }</b>
                         </div>
-                        
+
                         {paymentMethod === 'partial' && (
                             <>
                                 <div className="cart-total-details">
@@ -248,7 +285,13 @@ const PlaceOrder = () => {
                                 <div className="cart-total-details">
                                     <p>Remaining at Pickup (60%)</p>
                                     <p>{currency}{
-                                        (((getTotalCartAmount() - discountAmount) + deliveryCharge + (orderType === 'rush' ? 20 : 0)) * 0.6).toFixed(2)
+                                        (() => {
+                                            const total = parseFloat(((getTotalCartAmount() - discountAmount) + 
+                                            (includesDeliveryCharge ? 0 : deliveryCharge) + 
+                                            (orderType === 'rush' ? 20 : 0)).toFixed(2));
+                                            const paid = Math.floor(total * 40) / 100;
+                                            return (total - paid).toFixed(2);
+                                        })()
                                     }</p>
                                 </div>
                             </>
@@ -285,30 +328,32 @@ const PlaceOrder = () => {
                                 <p>Reference ID: {referenceId}</p>
                                 <p className="timer">Time remaining: {formatTime(timeLeft)}</p>
                             </div>
-                            
+
                             <div className="qr-container">
                                 <img src={qrCode} alt="Payment QR Code" />
                                 <p>Scan with any UPI app</p>
                             </div>
-
-                            <button 
-                                className="view-orders-btn" 
+                            <button
+                                className="view-orders-btn"
                                 type="button"
                                 onClick={() => {
-                                    // In the button onClick handler
-                                    navigate('/myorders'); // Change from '/my-orders' to '/myorders'
-                                    setTimeout(() => {
-                                        setCartItems({});
-                                    }, 0);
+                                    // Clear cart data when confirming payment
+                                    localStorage.removeItem('cartItems');
+                                    setCartItems({});
+                                    
+                                    // Navigate to orders page
+                                    navigate('/myorders');
+                                    
+                                    toast.success("Payment confirmed! Your order is being processed.");
                                 }}
                             >
-                                View Your Orders
+                                Confirm Payment / View Your Order
                             </button>
                         </div>
                     )}
                 </div>
                 <button className='place-order-submit' type='submit'>
-                    {qrCode ? "Generate New QR" : "Place Order"}
+                    {qrCode ? "Generate New QR" : "Generate QR Code"}
                 </button>
             </div>
         </form>

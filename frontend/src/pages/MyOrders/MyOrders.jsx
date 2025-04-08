@@ -72,14 +72,29 @@ const MyOrders = () => {
                       </span>
                     )}
                   </div>
-                  <p>{currency}{order.amount}.00</p>
+                  
+                  {/* Payment information section */}
+                  <div className="payment-info">
+                    <p className={`payment-type ${order.isPartialPayment ? 'partial' : 'full'}`}>
+                      {order.isPartialPayment ? 'Partial Payment (40%)' : 'Full Payment'}
+                    </p>
+                    {order.isPartialPayment ? (
+                      <div className="payment-details">
+                        <p>Paid: {currency}{order.paidAmount?.toFixed(2)}</p>
+                        <p className="remaining">Remaining: {currency}{order.remainingAmount?.toFixed(2)}</p>
+                      </div>
+                    ) : (
+                      <p>Total: {currency}{order.amount.toFixed(2)}</p>
+                    )}
+                  </div>
+                  
+                  <p>Items: {order.items.length}</p>
                   {order.discountAmount > 0 && (
                     <p className="discount-info">
                       Discount: -{currency}{order.discountAmount}
                       {order.promocodeUsed && ` (${order.promocodeUsed})`}
                     </p>
                   )}
-                  <p>Items: {order.items.length}</p>
                   <p><span>&#x25cf;</span> <b>
                     {order.status === "Order Received" && "📦 "}
                     {order.status === "Preparing Food" && "👨‍🍳 "}

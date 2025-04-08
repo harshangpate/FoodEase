@@ -27,7 +27,7 @@ const Order = () => {
     try {
       const order = orders.find(o => o._id === orderId);
       const newStatus = event.target.value;
-      
+
       if (order.status === "Cancelled") {
         toast.error("Cannot update status of cancelled orders");
         event.target.value = "Cancelled";
@@ -39,7 +39,7 @@ const Order = () => {
       }
 
       const response = await axios.post(
-        `${url}/api/order/status`, 
+        `${url}/api/order/status`,
         {
           orderId,
           status: newStatus,
@@ -48,7 +48,7 @@ const Order = () => {
         },
         { headers: { token: localStorage.getItem('adminToken') } }
       );
-      
+
       if (response.data.success) {
         toast.success("✅ Status updated successfully");
         await fetchAllOrders();
@@ -94,7 +94,7 @@ const Order = () => {
       console.error('Verification error:', error);
       toast.error('Error verifying payment');
     }
-};
+  };
 
   return (
     <div className='order add'>
@@ -141,7 +141,7 @@ const Order = () => {
                     setSelectedOrder(order._id);
                   }}
                 />
-                <button 
+                <button
                   onClick={() => handleVerification(order._id)}
                   className="verify-button"
                   disabled={!referenceId.trim()}
@@ -157,55 +157,61 @@ const Order = () => {
       </div>
 
       <div className="order-list">
-        {orders.map((order) => (
-          <div key={order._id} className='order-item'>
-            <img src={assets.parcel_icon} alt="" />
-            <div>
-              <p className='order-item-food'>
-                {order.items.map((item, index) => {
-                  if (index === order.items.length - 1) {
-                    return item.name + " x " + item.quantity
-                  }
-                  else {
-                    return item.name + " x " + item.quantity + ", "
-                  }
-                })}
-              </p>
-              <div className="order-type-info">
-                <span className={`order-type ${order.orderType}`}>
-                  {order.orderType?.charAt(0).toUpperCase() + order.orderType?.slice(1)} Order
-                </span>
-                {order.orderType === 'rush' && (
-                  <span className="priority-badge">Priority</span>
-                )}
-                {order.scheduledTime && (
-                  <span className="scheduled-time">
-                    Scheduled: {new Date(order.scheduledTime).toLocaleString()}
-                  </span>
-                )}
-              </div>
-              <p className='order-item-name'>{order.address.firstName + " " + order.address.lastName}</p>
-              <div className='order-item-address'>
-                <p>{order.address.street + ","}</p>
-                <p>{order.address.city + ", " + order.address.state + ", " + order.address.country + ", " + order.address.zipcode}</p>
-              </div>
-              <p className='order-item-phone'>{order.address.phone}</p>
-              <div className="payment-info">
-                <p className={`payment-type ${order.transactionDetails?.paymentType || 'online'}`}>
-                    {order.transactionDetails?.paymentType === 'partial' ? 'Partial Payment' : 'Full Payment'}
+        <h4>All Orders</h4>
+        {orders
+          .filter(order => order.status !== "Awaiting Payment Verification")
+          .map((order) => (
+            <div key={order._id} className='order-item'>
+              <img src={assets.parcel_icon} alt="" />
+              <div>
+                <p className='order-item-food'>
+                  {order.items.map((item, index) => {
+                    if (index === order.items.length - 1) {
+                      return item.name + " x " + item.quantity
+                    }
+                    else {
+                      return item.name + " x " + item.quantity + ", "
+                    }
+                  })}
                 </p>
-                {order.transactionDetails?.paymentType === 'partial' && (
+                <div className="order-type-info">
+                  <span className={`order-type ${order.orderType}`}>
+                    {order.orderType?.charAt(0).toUpperCase() + order.orderType?.slice(1)} Order
+                  </span>
+                  {order.scheduledTime && (
+                    <span className="scheduled-time">
+                      Scheduled: {new Date(order.scheduledTime).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+                <p className='order-item-name'>{order.address.firstName + " " + order.address.lastName}</p>
+                <div className='order-item-address'>
+                  <p>{order.address.street + ","}</p>
+                  <p>{order.address.city + ", " + order.address.state + ", " + order.address.country + ", " + order.address.zipcode}</p>
+                </div>
+                <p className='order-item-phone'>{order.address.phone}</p>
+                {/* Payment info display section */}
+                <div className="payment-info">
+                  {order.isPartialPayment ? (
                     <>
-                        <p>Paid: {currency}{order.transactionDetails?.paidAmount}</p>
-                        <p>Remaining: {currency}{order.transactionDetails?.remainingAmount}</p>
+                      <p className="payment-type partial">Partial Payment (40%)</p>
+                      <p className="payment-amount">
+                        Paid: {currency}{order.paidAmount?.toFixed(2) || (order.amount * 0.4).toFixed(2)}
+                      </p>
+                      <p className="payment-amount remaining">
+                        Remaining: {currency}{order.remainingAmount?.toFixed(2) || (order.amount * 0.6).toFixed(2)}
+                      </p>
                     </>
-                )}
-            </div>
+                  ) : (
+                    <p className="payment-type full">Full Payment</p>
+                  )}
+                </div>
+              </div>
               <p>Items: {order.items.length}</p>
               <p>{currency}{order.amount}</p>
-              <select 
-                onChange={(e) => statusHandler(e, order._id)} 
-                value={order.status || 'Order Received'} 
+              <select
+                onChange={(e) => statusHandler(e, order._id)}
+                value={order.status || 'Order Received'}
                 name="status"
                 className={`status-select ${order.status?.toLowerCase().replace(' ', '-')}`}
               >
@@ -223,8 +229,10 @@ const Order = () => {
                 <option value="Cancelled">Cancelled</option>
               </select>
             </div>
-          </div>
-        ))}
+          ))}
+        {orders.filter(order => order.status !== "Awaiting Payment Verification").length === 0 && (
+          <p>No verified orders available</p>
+        )}
       </div>
     </div>
   );
