@@ -306,6 +306,54 @@ const verifyPayment = async (req, res) => {
   }
 };
 
+// Add this new function to check reference IDs
+
+// Change from export const to just const
+const checkReferenceId = async (req, res) => {
+  try {
+    const { orderId, referenceId } = req.body;
+    
+    if (!orderId || !referenceId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Order ID and Reference ID are required" 
+      });
+    }
+    
+    const order = await orderModel.findById(orderId);
+    
+    if (!order) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Order not found" 
+      });
+    }
+    
+    // Check if the order already has a reference ID stored
+    if (order.referenceId && order.referenceId !== referenceId) {
+      return res.status(400).json({
+        success: false,
+        message: "Reference ID does not match our records"
+      });
+    }
+    
+    // If we're here, either:
+    // 1. The order doesn't have a reference ID yet (first verification)
+    // 2. The provided reference ID matches what's stored
+    
+    return res.json({ 
+      success: true, 
+      message: "Reference ID is valid" 
+    });
+  } catch (error) {
+    console.error("Reference ID check error:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Server error while checking reference ID" 
+    });
+  }
+};
+
 // Add new regeneratePayment function
 const regeneratePayment = async (req, res) => {
     try {
@@ -319,7 +367,9 @@ const regeneratePayment = async (req, res) => {
         const newReferenceId = crypto.randomBytes(6).toString('hex').toUpperCase();
         
         // Ensure amount is properly formatted
-        const amount = parseFloat(order.amount).toFixed(2);
+        const amount = order.isPartialPayment ? 
+            parseFloat(order.paidAmount).toFixed(2) : 
+            parseFloat(order.amount).toFixed(2);
         
         const upiUrl = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=${MERCHANT_NAME}&am=${amount}&tn=${newReferenceId}&cu=INR`;
         const qrCode = await QRCode.toDataURL(upiUrl);
@@ -347,7 +397,7 @@ const regeneratePayment = async (req, res) => {
     }
 };
 
-// Add regeneratePayment to exports
+// Keep the export list with all functions
 export { 
     placeOrder, 
     placeOrderCod, 
@@ -356,5 +406,6 @@ export {
     updateStatus, 
     verifyOrder,
     verifyPayment,
-    regeneratePayment
+    regeneratePayment,
+    checkReferenceId
 };

@@ -72,12 +72,28 @@ const Order = () => {
         return;
       }
 
+      // First, check if the reference ID matches what's expected
+      const checkResponse = await axios.post(
+        `${url}/api/order/check-reference`,
+        {
+          orderId,
+          referenceId: referenceId.trim()
+        },
+        { headers: { token: localStorage.getItem('adminToken') } }
+      );
+
+      if (!checkResponse.data.success) {
+        toast.error('❌ Invalid reference ID. Please verify and try again.');
+        return;
+      }
+
+      // If reference ID is valid, proceed with verification
       const response = await axios.post(
         `${url}/api/order/verify-payment`,
         {
           orderId,
           referenceId: referenceId.trim(),
-          paymentStatus: 'completed' // Add this line
+          paymentStatus: 'completed'
         },
         { headers: { token: localStorage.getItem('adminToken') } }
       );
@@ -92,7 +108,7 @@ const Order = () => {
       }
     } catch (error) {
       console.error('Verification error:', error);
-      toast.error('Error verifying payment');
+      toast.error('❌ Invalid reference ID. Please verify and try again.');
     }
   };
 

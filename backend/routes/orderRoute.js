@@ -7,17 +7,18 @@ import {
     userOrders, 
     placeOrderCod, 
     verifyPayment,
-    regeneratePayment 
-} from '../controllers/orderController.js';
+    regeneratePayment,
+    checkReferenceId
+} from '../controllers/ordercontroller.js';
 
 const orderRouter = express.Router();
 
 orderRouter.get("/list", listOrders);
-// Fix: Change 'router' to 'orderRouter' and 'auth' to 'authMiddleware'
-orderRouter.post('/place', authMiddleware, placeOrder); // Use the controller function instead of inline code
+orderRouter.post('/place', authMiddleware, placeOrder);
 orderRouter.post("/placecod", authMiddleware, placeOrderCod);
 orderRouter.post("/userorders", authMiddleware, userOrders);
 orderRouter.post("/verify-payment", authMiddleware, verifyPayment);
+orderRouter.post("/check-reference", authMiddleware, checkReferenceId); // Add this new route
 orderRouter.post("/status", authMiddleware, updateStatus);
 orderRouter.post("/regenerate-payment", authMiddleware, regeneratePayment);
 
