@@ -65,8 +65,29 @@
     font-size: 12px;
 }
 .food-item-price{
-    color: #FF4C24;
+    color: #ff6444;
     font-size: 22px;
     font-weight: 500;
     margin: 10px 0px;
+}
+
+.login-required {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+.login-btn {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    text-decoration: underline;
 }

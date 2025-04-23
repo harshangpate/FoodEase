@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Home from './pages/Home/Home'
 import Footer from './components/Footer/Footer'
 import Navbar from './components/Navbar/Navbar'
@@ -16,6 +16,11 @@ import Offers from './pages/Offers/Offers';
 const App = () => {
 
   const [showLogin,setShowLogin] = useState(false);
+  
+  // Make setShowLogin available globally
+  useEffect(() => {
+    window.setShowLogin = setShowLogin;
+  }, []);
 
   return (
     <>
