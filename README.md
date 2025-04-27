@@ -69,103 +69,46 @@ FoodEase is a comprehensive canteen management system designed specifically for 
 ### Setup Instructions
 
 1\. Clone the repository
-
-bash
-
-Run
-
-Open Folder
-
-1
-
-2
+```
 
 git clone https://github.com/yourusername/FoodEase.git
 
 cd FoodEase
+```
 
 2\. Install dependencies for backend
-
-bash
-
-Run
-
-Open Folder
-
-1
-
-2
-
+```
 cd backend
 
 npm install
+```
 
 3\. Configure environment variables Create a .env file in the backend directory with the following variables:
-
-plaintext
-
-Open Folder
-
-1
-
-2
-
-3
-
+```
 JWT_SECRET=your-secret-key
 
 MERCHANT_UPI_ID=your-upi-id
 
 MERCHANT_NAME=FoodEase
-
+```
 4\. Install dependencies for frontend
-
-bash
-
-Run
-
-Open Folder
-
-1
-
-2
-
+```
 cd ../frontend
 
 npm install
-
+```
 5\. Start the backend server
-
-bash
-
-Run
-
-Open Folder
-
-1
-
-2
-
+```
 cd ../backend
 
 npm start
-
+```
 6\. Start the frontend development server
-
-bash
-
-Run
-
-Open Folder
-
-1
-
-2
-
+```
 cd ../frontend
 
 npm start
-
+```
 7\. Access the application
 
 - Frontend: http://localhost:3000
@@ -210,48 +153,7 @@ npm start
 
 ## 📁 Project Structure
 
-plaintext
-
-Open Folder
-
-1
-
-2
-
-3
-
-4
-
-5
-
-6
-
-7
-
-8
-
-9
-
-10
-
-11
-
-12
-
-13
-
-14
-
-15
-
-16
-
-17
-
-18
-
-19
-
+```bash
 FoodEase/
 
 ├── backend/               # Backend server code
@@ -289,9 +191,7 @@ FoodEase/
 │       ├── pages/         # Admin pages
 
 └── README.md              # Project documentation
-
-Fold
-
+```
 ## 🔮 Future Enhancements
 
 - Mobile application development
