@@ -70,43 +70,35 @@ FoodEase is a comprehensive canteen management system designed specifically for 
 
 1\. Clone the repository
 ```
-
 git clone https://github.com/yourusername/FoodEase.git
-
 cd FoodEase
 ```
 
 2\. Install dependencies for backend
 ```
 cd backend
-
 npm install
 ```
 
 3\. Configure environment variables Create a .env file in the backend directory with the following variables:
 ```
 JWT_SECRET=your-secret-key
-
 MERCHANT_UPI_ID=your-upi-id
-
 MERCHANT_NAME=FoodEase
 ```
 4\. Install dependencies for frontend
 ```
 cd ../frontend
-
 npm install
 ```
 5\. Start the backend server
 ```
 cd ../backend
-
 npm start
 ```
 6\. Start the frontend development server
 ```
 cd ../frontend
-
 npm start
 ```
 7\. Access the application
@@ -155,41 +147,23 @@ npm start
 
 ```bash
 FoodEase/
-
 ├── backend/               # Backend server code
-
 │   ├── controllers/       # Request handlers
-
 │   ├── models/            # Database models
-
 │   ├── routes/            # API routes
-
 │   └── server.js          # Entry point
-
 ├── frontend/              # React frontend
-
 │   ├── public/            # Static files
-
 │   └── src/               # Source files
-
 │       ├── components/    # Reusable components
-
 │       ├── pages/         # Page components
-
 │       ├── Context/       # Context providers
-
 │       └── assets/        # Images and other assets
-
 ├── admin/                 # Admin dashboard
-
 │   ├── public/            # Static files
-
 │   └── src/               # Source files
-
 │       ├── components/    # Admin components
-
 │       ├── pages/         # Admin pages
-
 └── README.md              # Project documentation
 ```
 ## 🔮 Future Enhancements
@@ -206,14 +180,18 @@ FoodEase/
 
 ## 👥 Contributors
 
-- Your Name
+- Harshang Patel
+- Shivansh Patel
+- Siddharaj Parmar
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License
 
 ## 🙏 Acknowledgments
-
-- ITM (SLS) Baroda University for supporting this project
-
+- Faculty Advisors for their guidance and technical expertise throughout the development process
+- Beta Testers who provided valuable feedback during the testing phase
 - All contributors who have helped in the development process
+- The open-source community for the various libraries and frameworks that made this project possible
+- React.js, Node.js, and MongoDB communities for their excellent documentation and support forums
+- Stack Overflow contributors whose solutions helped overcome numerous technical challenges
