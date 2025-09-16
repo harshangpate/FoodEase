@@ -20,6 +20,10 @@ FoodEase is a comprehensive canteen management system designed specifically for 
 
 - Order History : View past orders and their details
 
+- Invoice Generation : Automatic PDF invoice generation for completed orders
+
+- Monthly Expense Reports : Receive monthly expense reports via email
+
 ### For Administrators
 
 - Order Management : Process incoming orders and update their status
@@ -30,6 +34,10 @@ FoodEase is a comprehensive canteen management system designed specifically for 
 
 - Promocode System : Create and manage discount codes
 
+- User Management : Manage student accounts and permissions
+
+- Reporting System : Generate detailed sales and order reports
+
 ## 🛠️ Technology Stack
 
 ### Frontend
@@ -38,11 +46,13 @@ FoodEase is a comprehensive canteen management system designed specifically for 
 
 - CSS3/SCSS - For styling components
 
-- Redux - For state management
+- React Router - For navigation
 
 - Axios - For API requests
 
-- QRCode.react - For generating payment QR codes
+- React-Toastify - For notifications
+
+- Moment.js - For date/time formatting
 
 ### Backend
 
@@ -55,6 +65,16 @@ FoodEase is a comprehensive canteen management system designed specifically for 
 - Mongoose - MongoDB object modeling
 
 - JWT - For secure authentication
+
+- Multer - For file uploads
+
+- PDFKit - For PDF generation
+
+- Nodemailer - For email notifications
+
+- Node-cron - For scheduled tasks
+
+- QRCode - For generating payment QR codes
 
 ## 📋 Installation
 
@@ -80,30 +100,52 @@ cd backend
 npm install
 ```
 
-3\. Configure environment variables Create a .env file in the backend directory with the following variables:
+3\. Configure environment variables
+Create a .env file in the backend directory with the following variables:
 ```
 JWT_SECRET=your-secret-key
 MERCHANT_UPI_ID=your-upi-id
 MERCHANT_NAME=FoodEase
+EMAIL_USER=your-email@example.com
+EMAIL_PASS=your-email-password
+EMAIL_SERVICE=gmail
 ```
+
 4\. Install dependencies for frontend
 ```
 cd ../frontend
 npm install
 ```
-5\. Start the backend server
+
+5\. Install dependencies for admin dashboard
+```
+cd ../admin
+npm install
+```
+
+6\. Start the backend server
 ```
 cd ../backend
-npm start
+npm run server
 ```
-6\. Start the frontend development server
+
+7\. Start the frontend development server
 ```
 cd ../frontend
-npm start
+npm run dev
 ```
-7\. Access the application
 
-- Frontend: http://localhost:3000
+8\. Start the admin dashboard
+```
+cd ../admin
+npm run dev
+```
+
+9\. Access the application
+
+- Frontend: http://localhost:5173
+
+- Admin Dashboard: http://localhost:5174
 
 - Backend API: http://localhost:5000
 
@@ -131,6 +173,10 @@ npm start
 
 10\. Collect food when ready
 
+11\. Download invoice for completed orders
+
+12\. Receive monthly expense report via email
+
 ### Admin Flow
 
 1\. Login to admin dashboard
@@ -143,29 +189,46 @@ npm start
 
 5\. Manage menu items and promocodes
 
+6\. Generate and view sales reports
+
+7\. Manage user accounts
+
+8\. Schedule monthly reports
+
 ## 📁 Project Structure
 
 ```bash
 FoodEase/
-├── backend/               # Backend server code
-│   ├── controllers/       # Request handlers
-│   ├── models/            # Database models
-│   ├── routes/            # API routes
-│   └── server.js          # Entry point
-├── frontend/              # React frontend
-│   ├── public/            # Static files
-│   └── src/               # Source files
-│       ├── components/    # Reusable components
-│       ├── pages/         # Page components
-│       ├── Context/       # Context providers
-│       └── assets/        # Images and other assets
-├── admin/                 # Admin dashboard
-│   ├── public/            # Static files
-│   └── src/               # Source files
-│       ├── components/    # Admin components
-│       ├── pages/         # Admin pages
-└── README.md              # Project documentation
+├── backend/                # Backend server code
+│   ├── config/             # Database configuration
+│   ├── controllers/        # Request handlers
+│   ├── middleware/         # Authentication middleware
+│   ├── models/             # Database models
+│   ├── routes/             # API routes
+│   ├── scripts/            # Admin and user management scripts
+│   ├── uploads/            # Food image uploads
+│   ├── utils/              # Utility functions
+│   │   ├── email/          # Email templates and services
+│   │   └── pdf/            # PDF generation utilities
+│   ├── invoices/           # Generated order invoices
+│   ├── reports/            # Generated monthly reports
+│   └── server.js           # Entry point
+├── frontend/               # React frontend for students
+│   ├── public/             # Static files
+│   └── src/                # Source files
+│       ├── components/     # Reusable components
+│       ├── pages/          # Page components
+│       ├── context/        # Context providers
+│       └── assets/         # Images and other assets
+├── admin/                  # Admin dashboard
+│   ├── public/             # Static files
+│   └── src/                # Source files
+│       ├── components/     # Admin components
+│       ├── pages/          # Admin pages
+│       └── context/        # Admin context providers
+└── README.md               # Project documentation
 ```
+
 ## 🔮 Future Enhancements
 
 - Mobile application development
@@ -177,6 +240,14 @@ FoodEase/
 - Loyalty program implementation
 
 - Scheduled ordering for regular meals
+
+- Push notifications for order updates
+
+- Integration with popular payment gateways
+
+- Voice-enabled ordering system
+
+- AI-powered food recommendations
 
 ## 👥 Contributors
 
