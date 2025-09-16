@@ -635,6 +635,44 @@ const serveReport = async (req, res) => {
     }
 };
 
+// Get order details function
+const getOrderDetails = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    
+    // Validate orderId
+    if (!orderId) {
+      return res.json({ success: false, message: "Order ID is required" });
+    }
+    
+    // Find order by ID
+    const order = await orderModel.findById(orderId);
+    
+    if (!order) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+    
+    // Check if the order belongs to the user making the request
+    if (order.userId.toString() !== req.user._id.toString()) {
+      return res.json({ 
+        success: false, 
+        message: "You don't have permission to view this order" 
+      });
+    }
+    
+    return res.json({
+      success: true,
+      data: order
+    });
+  } catch (error) {
+    console.error("Error fetching order details:", error);
+    return res.json({ 
+      success: false, 
+      message: "Error retrieving order details" 
+    });
+  }
+};
+
 // Keep the export list with all functions
 export { 
     placeOrder, 
@@ -649,5 +687,6 @@ export {
     generateInvoice,
     serveInvoice,
     generateMonthlyReport,
-    serveReport
+    serveReport,
+    getOrderDetails
 };

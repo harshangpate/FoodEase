@@ -75,4 +75,68 @@ const authenticateAdmin = async (req, res, next) => {
     }
 };
 
-export { authMiddleware as default, authenticateAdmin };
+// Verify token middleware for general user authentication
+const verifyToken = async (req, res, next) => {
+    const { token } = req.headers;
+    
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required. Please login.'
+        });
+    }
+    
+    try {
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Get the user from database
+        const user = await userModel.findById(decoded.id);
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+        
+        // Add user info to request object
+        req.user = { 
+            id: decoded.id,
+            isAdmin: user.isAdmin
+        };
+        
+        next();
+    } catch (error) {
+        console.error('Auth error:', error);
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid token'
+            });
+        } else if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                success: false,
+                message: 'Token expired'
+            });
+        } else {
+            return res.status(500).json({
+                success: false,
+                message: 'Authentication error'
+            });
+        }
+    }
+};
+
+// Admin check middleware - to be used after verifyToken
+const isAdmin = (req, res, next) => {
+    if (!req.user.isAdmin) {
+        return res.status(403).json({
+            success: false, 
+            message: 'Admin access required'
+        });
+    }
+    next();
+};
+
+export { authMiddleware as default, authenticateAdmin, verifyToken, isAdmin };

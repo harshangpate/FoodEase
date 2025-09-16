@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, token } = useAuth();
+  const navigate = useNavigate();
   const [profileData, setProfileData] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,8 +23,16 @@ const ProfilePage = () => {
   const [months, setMonths] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState('');
   const [reportLoading, setReportLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!token) {
+      toast.error("Please login to view your profile");
+      navigate('/');
+      return;
+    }
+
     // Generate last 12 months for report selection
     const generateMonths = () => {
       const monthsList = [];
@@ -46,39 +55,65 @@ const ProfilePage = () => {
     // Load user profile data
     const fetchProfileData = async () => {
       setLoading(true);
+      setError(null);
       try {
+        console.log('Fetching profile data with token:', token);
+        console.log('API URL:', import.meta.env.VITE_API_URL);
+        
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/profile`, {
           headers: {
-            token: localStorage.getItem('token')
+            token: token
           }
         });
         
-        setProfileData(response.data.user);
-        setFormData({
-          name: response.data.user.name,
-          email: response.data.user.email,
-          parentEmail: response.data.user.parentEmail || '',
-          phone: response.data.user.phone || '',
-        });
+        console.log('Profile response:', response.data);
+        
+        if (response.data.success) {
+          setProfileData(response.data.user);
+          setFormData({
+            name: response.data.user.name,
+            email: response.data.user.email,
+            parentEmail: response.data.user.parentEmail || '',
+            phone: response.data.user.phone || '',
+          });
+        } else {
+          console.error('Profile fetch returned success: false', response.data);
+          setError(response.data.message || 'Failed to load profile data');
+          toast.error(response.data.message || 'Failed to load profile data');
+        }
       } catch (error) {
         console.error('Error fetching profile data', error);
-        toast.error('Failed to load profile data');
+        console.error('Error response:', error.response);
+        const errorMsg = error.response?.data?.message || 'Failed to load profile data. Please try again.';
+        setError(errorMsg);
+        toast.error(errorMsg);
+      } finally {
+        setLoading(false);
       }
     };
     
     // Load user orders
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/order/my-orders`, {
+        console.log('Fetching orders with token:', token);
+        
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/order/userorders`, {}, {
           headers: {
-            token: localStorage.getItem('token')
+            token: token
           }
         });
         
-        setOrders(response.data.orders);
+        console.log('Orders response:', response.data);
+        
+        if (response.data.success) {
+          setOrders(response.data.data || []);
+        } else {
+          console.error('Order fetch returned success: false', response.data);
+        }
       } catch (error) {
         console.error('Error fetching orders', error);
-        toast.error('Failed to load order history');
+        console.error('Error response:', error.response);
+        toast.error(error.response?.data?.message || 'Failed to load order history');
       } finally {
         setLoading(false);
       }
@@ -86,7 +121,7 @@ const ProfilePage = () => {
     
     fetchProfileData();
     fetchOrders();
-  }, [currentUser]);
+  }, [token, navigate]);
   
   // Handle form input changes
   const handleChange = (e) => {
@@ -106,7 +141,7 @@ const ProfilePage = () => {
         formData,
         {
           headers: {
-            token: localStorage.getItem('token')
+            token: token
           }
         }
       );
@@ -130,7 +165,7 @@ const ProfilePage = () => {
         `${import.meta.env.VITE_API_URL}/api/reports/monthly/${currentUser.id}?month=${month}&year=${year}`,
         {
           headers: {
-            token: localStorage.getItem('token')
+            token: token
           }
         }
       );
@@ -153,6 +188,26 @@ const ProfilePage = () => {
       <div className="profile-loading">
         <div className="spinner"></div>
         <p>Loading profile...</p>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="profile-error">
+        <h2>Something went wrong</h2>
+        <p>{error}</p>
+        <button onClick={() => navigate('/')}>Return to Home</button>
+      </div>
+    );
+  }
+  
+  if (!profileData) {
+    return (
+      <div className="profile-error">
+        <h2>Profile Not Found</h2>
+        <p>Unable to load your profile information. Please try logging in again.</p>
+        <button onClick={() => navigate('/')}>Return to Home</button>
       </div>
     );
   }

@@ -12,7 +12,8 @@ import {
     generateInvoice,
     serveInvoice,
     generateMonthlyReport,
-    serveReport
+    serveReport,
+    getOrderDetails
 } from '../controllers/orderController.js';
 
 const orderRouter = express.Router();
@@ -25,6 +26,9 @@ orderRouter.post("/verify-payment", authMiddleware, verifyPayment);
 orderRouter.post("/check-reference", authMiddleware, checkReferenceId); // Add this new route
 orderRouter.post("/status", authMiddleware, updateStatus);
 orderRouter.post("/regenerate-payment", authMiddleware, regeneratePayment);
+
+// Order details endpoint
+orderRouter.post("/details", authMiddleware, getOrderDetails);
 
 // Invoice and report routes
 orderRouter.post("/generate-invoice/:orderId", authMiddleware, generateInvoice);

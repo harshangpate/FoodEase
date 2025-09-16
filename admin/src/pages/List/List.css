@@ -10,11 +10,28 @@
 .list-table-format.title{
     background-color: #f9f9f9;
 }
-.list-table-format img{
+.list-table-format .food-image-container {
     width: 50px;
+    height: 50px;
+    overflow: hidden;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f8f8;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+.list-table-format .food-list-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.loading {
+    padding: 20px;
+    text-align: center;
+    color: #666;
 }
 @media(max-width:600px){
-
     .list-table-format{
         grid-template-columns: 1fr 3fr 1fr;
         gap: 15px;

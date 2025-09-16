@@ -1,6 +1,5 @@
 // Add a user profile API endpoint to the backend
 import express from 'express';
-import { verifyToken } from '../middleware/auth.js';
 import userModel from '../models/userModel.js';
 
 // Function to get user profile data

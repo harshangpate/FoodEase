@@ -18,6 +18,7 @@ export const assets ={
     discount_img,
     profile_image,
     upload_area,
-    parcel_icon
+    parcel_icon,
+    food_placeholder: 'https://placehold.co/400x300/orange/white?text=Food+Image'
 }
 

@@ -49,7 +49,8 @@ export const assets = {
     checked,
     un_checked,
     discount_img,
-    user_icon
+    user_icon,
+    food_placeholder: 'https://placehold.co/400x300/orange/white?text=Food+Image'
 }
 
 export const menu_list = [
@@ -69,4 +70,3 @@ export const menu_list = [
     export const food_list = [
         
     ]
-    

@@ -13,6 +13,8 @@ import Verify from './pages/Verify/Verify'
 import Orders from './pages/MyOrders/MyOrders';
 import Offers from './pages/Offers/Offers';
 import ProfilePage from './pages/Profile/ProfilePage';
+import OrderDetails from './pages/OrderDetails/OrderDetails';
+import { AuthProvider } from './Context/AuthContext';
 
 const App = () => {
 
@@ -24,7 +26,7 @@ const App = () => {
   }, []);
 
   return (
-    <>
+    <AuthProvider>
       <ToastContainer/>
       {showLogin?<LoginPopup setShowLogin={setShowLogin}/>:<></>}
       <div className='app'>
@@ -37,10 +39,11 @@ const App = () => {
           <Route path='/verify' element={<Verify />}/>
           <Route path="/offers" element={<Offers />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/order/:orderId" element={<OrderDetails />} />
         </Routes>
       </div>
       <Footer />
-    </>
+    </AuthProvider>
   )
 }
 
