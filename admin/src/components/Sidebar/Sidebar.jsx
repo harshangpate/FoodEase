@@ -23,6 +23,10 @@ const Sidebar = () => {
             <img src={assets.discount_img} alt="" />
             <p>Promocodes</p>
         </NavLink>
+        <NavLink to='/users' className="sidebar-option">
+            <img src={assets.profile_image} alt="" />
+            <p>Users</p>
+        </NavLink>
       </div>
     </div>
   )
