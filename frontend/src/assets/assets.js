@@ -24,6 +24,7 @@ import logout_icon from './logout_icon.png'
 import parcel_icon from './parcel_icon.png'
 import checked from './checked.png'
 import un_checked from './un_checked.png'
+import user_icon from './user_icon.svg'
 
 export const assets = {
     logo,
@@ -47,7 +48,8 @@ export const assets = {
     parcel_icon,
     checked,
     un_checked,
-    discount_img
+    discount_img,
+    user_icon
 }
 
 export const menu_list = [

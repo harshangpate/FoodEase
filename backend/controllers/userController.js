@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import userModel from "../models/userModel.js";
+import { sendWelcomeEmail } from "../utils/email/emailService.js";
 
 //create token
 const createToken = (id) => {
@@ -34,7 +35,7 @@ const loginUser = async (req,res) => {
 
 //register user
 const registerUser = async (req,res) => {
-    const {name, email, password} = req.body;
+    const {name, email, parentEmail, password} = req.body;
     try{
         //check if user already exists
         const exists = await userModel.findOne({email})
@@ -46,6 +47,9 @@ const registerUser = async (req,res) => {
         if(!validator.isEmail(email)){
             return res.json({success:false,message: "Please enter a valid email"})
         }
+        if(parentEmail && !validator.isEmail(parentEmail)){
+            return res.json({success:false,message: "Please enter a valid parent email"})
+        }
         if(password.length<8){
             return res.json({success:false,message: "Please enter a strong password"})
         }
@@ -54,9 +58,15 @@ const registerUser = async (req,res) => {
         const salt = await bcrypt.genSalt(10); // the more no. round the more time it will take
         const hashedPassword = await bcrypt.hash(password, salt)
 
-        const newUser = new userModel({name, email, password: hashedPassword})
+        const newUser = new userModel({name, email, parentEmail, password: hashedPassword})
         const user = await newUser.save()
         const token = createToken(user._id)
+        
+        // Send welcome email in the background
+        sendWelcomeEmail(user).catch(err => {
+            console.error('Error sending welcome email:', err);
+        });
+        
         res.json({success:true,token})
 
     } catch(error){

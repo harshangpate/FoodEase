@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify/Verify'
 import Orders from './pages/MyOrders/MyOrders';
 import Offers from './pages/Offers/Offers';
+import ProfilePage from './pages/Profile/ProfilePage';
 
 const App = () => {
 
@@ -35,6 +36,7 @@ const App = () => {
           <Route path='/myorders' element={<MyOrders />}/> {/* Make sure this matches */}
           <Route path='/verify' element={<Verify />}/>
           <Route path="/offers" element={<Offers />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </div>
       <Footer />

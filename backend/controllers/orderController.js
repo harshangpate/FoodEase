@@ -3,6 +3,20 @@ import userModel from "../models/userModel.js"
 import QRCode from 'qrcode';
 import crypto from 'crypto';
 import axios from 'axios';
+import { generateOrderInvoice, generateMonthlyExpenseReport } from '../utils/pdf/pdfGenerator.js';
+import { sendOrderStatusEmail, sendInvoiceEmail, sendMonthlyReportEmail } from '../utils/email/emailService.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import moment from 'moment';
+
+// Get current directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Define invoice and report directories
+const invoiceDir = path.join(__dirname, '..', 'invoices');
+const reportDir = path.join(__dirname, '..', 'reports');
 
 //config variables
 const currency = "inr";
@@ -237,7 +251,29 @@ const userOrders = async (req, res) => {
 const updateStatus = async (req, res) => {
     console.log(req.body);
     try {
-        await orderModel.findByIdAndUpdate(req.body.orderId, { status: req.body.status });
+        // Get the old order to have access to the current status and user ID
+        const oldOrder = await orderModel.findById(req.body.orderId);
+        if (!oldOrder) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        // Get the old status before updating
+        const oldStatus = oldOrder.status;
+        const newStatus = req.body.status;
+
+        // Update the order status
+        await orderModel.findByIdAndUpdate(req.body.orderId, { status: newStatus });
+
+        // Only send email if the status actually changed
+        if (oldStatus !== newStatus) {
+            // Get the user details
+            const user = await userModel.findById(oldOrder.userId);
+            if (user) {
+                // Send email notification about status update
+                await sendOrderStatusEmail(oldOrder, user, oldStatus, newStatus);
+            }
+        }
+
         res.json({ success: true, message: "Status Updated" });
     } catch (error) {
         console.log(error);
@@ -248,16 +284,50 @@ const updateStatus = async (req, res) => {
 const verifyOrder = async (req, res) => {
     const { orderId, success } = req.body;
     try {
+        const order = await orderModel.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        const user = await userModel.findById(order.userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
         if (success === "true") {
-            await orderModel.findByIdAndUpdate(orderId, { payment: true });
-            res.json({ success: true, message: "Paid" })
+            // Update the order payment status
+            order.payment = true;
+            await order.save();
+            
+            // Send notification email about successful payment
+            await sendOrderStatusEmail(
+                order, 
+                user, 
+                order.status, 
+                order.status, // Status doesn't change but we send a payment verification notification
+                "Your payment has been verified successfully."
+            );
+            
+            res.json({ success: true, message: "Paid" });
         }
         else {
-            await orderModel.findByIdDelete(orderId) // Fixed method name
-            res.json({ success: false, message: "Not Paid" })
+            // Payment failed, delete the order
+            await orderModel.findByIdAndDelete(orderId); // Fixed method name
+            
+            // Send notification about failed payment
+            await sendOrderStatusEmail(
+                order, 
+                user, 
+                order.status, 
+                "Cancelled",
+                "Your payment was not successful. Your order has been cancelled."
+            );
+            
+            res.json({ success: false, message: "Not Paid" });
         }
     } catch (error) {
-        res.json({ success: false, message: "Not  Verified" })
+        console.error("Payment verification error:", error);
+        res.json({ success: false, message: "Not Verified" });
     }
 };
 
@@ -282,16 +352,43 @@ const verifyPayment = async (req, res) => {
       });
     }
     
+    // Get user for email notification
+    const user = await userModel.findById(order.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    
     // Update the order with payment verification details
     order.referenceId = referenceId;
     order.paymentVerified = true; // Explicitly set paymentVerified to true
     
     // Only update status if it's still awaiting verification
+    const oldStatus = order.status;
     if (order.status === "Awaiting Payment Verification") {
       order.status = "Order Received";
     }
     
     await order.save();
+    
+    // Send payment verification email
+    await sendOrderStatusEmail(
+      order,
+      user,
+      oldStatus,
+      order.status,
+      "Your payment has been verified successfully. Your order is now being processed."
+    );
+    
+    // Generate invoice after payment verification
+    const invoicePath = await generateOrderInvoice(order, user);
+    
+    // Send invoice email if invoice was generated
+    if (invoicePath) {
+      await sendInvoiceEmail(order, user, invoicePath);
+    }
     
     return res.json({ 
       success: true, 
@@ -397,6 +494,147 @@ const regeneratePayment = async (req, res) => {
     }
 };
 
+// Generate invoice for an order
+const generateInvoice = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const userId = req.body.userId;
+
+        // Find the order
+        const order = await orderModel.findById(orderId);
+        if (!order) {
+            return res.json({ success: false, message: "Order not found" });
+        }
+
+        // Check if user is authorized to access this order
+        if (order.userId.toString() !== userId) {
+            return res.json({ success: false, message: "Unauthorized access to order" });
+        }
+
+        // Get user details
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        // Generate invoice
+        const invoicePath = await generateOrderInvoice(order, user, invoiceDir);
+        
+        // Get filename from path
+        const filename = path.basename(invoicePath);
+        
+        res.json({
+            success: true,
+            message: "Invoice generated successfully",
+            invoiceUrl: `/api/order/invoice/${filename}`
+        });
+    } catch (error) {
+        console.error("Invoice generation error:", error);
+        res.json({ success: false, message: "Error generating invoice" });
+    }
+};
+
+// Serve invoice PDF
+const serveInvoice = async (req, res) => {
+    try {
+        const { filename } = req.params;
+        const filePath = path.join(invoiceDir, filename);
+        
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: "Invoice not found" });
+        }
+        
+        // Set content type and send file
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+        
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(res);
+    } catch (error) {
+        console.error("Error serving invoice:", error);
+        res.status(500).json({ success: false, message: "Error serving invoice" });
+    }
+};
+
+// Generate monthly expense report
+const generateMonthlyReport = async (req, res) => {
+    try {
+        const userId = req.body.userId;
+        const { month, year } = req.params;
+        
+        // Validate month and year
+        const monthNum = parseInt(month);
+        const yearNum = parseInt(year);
+        
+        if (isNaN(monthNum) || monthNum < 1 || monthNum > 12 || isNaN(yearNum)) {
+            return res.json({ success: false, message: "Invalid month or year" });
+        }
+        
+        // Get user details
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+        
+        // Calculate start and end date for the month
+        const startDate = new Date(yearNum, monthNum - 1, 1);
+        const endDate = new Date(yearNum, monthNum, 0, 23, 59, 59);
+        
+        // Find all orders for the user in the given month
+        const orders = await orderModel.find({
+            userId: userId,
+            createdAt: { $gte: startDate, $lte: endDate },
+            status: { $nin: ['Cancelled', 'Awaiting Payment Verification'] }
+        }).sort({ createdAt: -1 });
+        
+        if (orders.length === 0) {
+            return res.json({ 
+                success: false, 
+                message: `No orders found for ${moment().month(monthNum - 1).format('MMMM')} ${yearNum}` 
+            });
+        }
+        
+        // Generate report
+        const reportPath = await generateMonthlyExpenseReport(user, orders, monthNum, yearNum, reportDir);
+        
+        // Get filename from path
+        const filename = path.basename(reportPath);
+        
+        res.json({
+            success: true,
+            message: "Monthly report generated successfully",
+            reportUrl: `/api/order/report/${filename}`
+        });
+    } catch (error) {
+        console.error("Report generation error:", error);
+        res.json({ success: false, message: "Error generating monthly report" });
+    }
+};
+
+// Serve report PDF
+const serveReport = async (req, res) => {
+    try {
+        const { filename } = req.params;
+        const filePath = path.join(reportDir, filename);
+        
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: "Report not found" });
+        }
+        
+        // Set content type and send file
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+        
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(res);
+    } catch (error) {
+        console.error("Error serving report:", error);
+        res.status(500).json({ success: false, message: "Error serving report" });
+    }
+};
+
 // Keep the export list with all functions
 export { 
     placeOrder, 
@@ -407,5 +645,9 @@ export {
     verifyOrder,
     verifyPayment,
     regeneratePayment,
-    checkReferenceId
+    checkReferenceId,
+    generateInvoice,
+    serveInvoice,
+    generateMonthlyReport,
+    serveReport
 };

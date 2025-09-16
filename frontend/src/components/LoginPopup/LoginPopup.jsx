@@ -7,12 +7,13 @@ import { toast } from 'react-toastify'
 
 const LoginPopup = ({ setShowLogin }) => {
 
-    const { setToken, url,loadCartData } = useContext(StoreContext)
+    const { setToken, url, loadCartData } = useContext(StoreContext)
     const [currState, setCurrState] = useState("Sign Up");
 
     const [data, setData] = useState({
         name: "",
         email: "",
+        parentEmail: "",
         password: ""
     })
 
@@ -60,7 +61,8 @@ const LoginPopup = ({ setShowLogin }) => {
                 </div>
                 <div className="login-popup-inputs">
                     {currState === "Sign Up" ? <input name='name' onChange={onChangeHandler} value={data.name} type="text" placeholder='Your name' required /> : <></>}
-                    <input name='email' onChange={onChangeHandler} value={data.email} type="email" placeholder='Your email' />
+                    <input name='email' onChange={onChangeHandler} value={data.email} type="email" placeholder='Your email' required />
+                    {currState === "Sign Up" ? <input name='parentEmail' onChange={onChangeHandler} value={data.parentEmail} type="email" placeholder='Parent email (optional)' /> : <></>}
                     <input name='password' onChange={onChangeHandler} value={data.password} type="password" placeholder='Password' required />
                 </div>
                 <button>{currState === "Login" ? "Login" : "Create account"}</button>
