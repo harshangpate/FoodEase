@@ -10,6 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import Promocodes from './pages/Promocodes/Promocodes';
+import Users from './pages/Users/Users';
 // Import the axios config to apply interceptors
 import './utils/axiosConfig';
 
@@ -92,6 +93,7 @@ const App = () => {
                         <Route path="/list" element={<List />} />
                         <Route path="/orders" element={<Orders />} />
                         <Route path="/promocodes" element={<Promocodes />} />
+                        <Route path="/users" element={<Users />} />
                         <Route path="*" element={<Navigate to="/list" />} />
                     </Routes>
                 </div>
