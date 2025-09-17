@@ -10,8 +10,10 @@ import ora from "ora";
 const connectDB = async () => {
   const spinner = ora('Connecting to database...').start();
   try {
-    await mongoose.connect('mongodb://localhost:27017/FoodEase');
-    spinner.succeed(chalk.green('Connected to FoodEase database'));
+    // Use environment variable for MongoDB URI or fallback to local DB for development
+    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/FoodEase';
+    await mongoose.connect(mongoURI);
+    spinner.succeed(chalk.green(`Connected to ${mongoURI.includes("localhost") ? "local" : "Atlas"} database`));
     return true;
   } catch (error) {
     spinner.fail(chalk.red('Database connection failed'));
