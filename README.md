@@ -251,8 +251,6 @@ FoodEase/
 
 - Scheduled ordering for regular meals
 
-- Push notifications for order updates
-
 - Integration with popular payment gateways
 
 - Voice-enabled ordering system
