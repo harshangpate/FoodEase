@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
 });
 
 // Function to handle logout and redirect
