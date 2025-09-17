@@ -2,16 +2,22 @@
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
   
-  // For debugging
-  console.log('Admin - Processing image path:', imagePath);
+  // Minimal logging in production
+  const isProduction = import.meta.env.MODE === 'production';
+  if (!isProduction) {
+    console.log('Admin - Processing image path:', imagePath);
+  }
   
   try {
-    // Get base URL and ensure it doesn't have trailing comments or spaces
-    const baseUrl = import.meta.env.VITE_API_URL.split('//')[0] === 'http:' 
-      ? import.meta.env.VITE_API_URL.split('//')[0] + '//' + import.meta.env.VITE_API_URL.split('//')[1].trim().split(' ')[0]
-      : import.meta.env.VITE_API_URL.trim().split(' ')[0];
+    // Get the API base URL from environment variables
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     
-    console.log('Admin - Using base URL:', baseUrl);
+    // Clean the base URL to ensure it doesn't have trailing spaces or comments
+    const cleanBaseUrl = baseUrl.trim().split(' ')[0];
+    
+    if (!isProduction) {
+      console.log('Admin - Using base URL:', cleanBaseUrl);
+    }
     
     // If the image path already contains the full URL, return it as is
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
@@ -21,15 +27,15 @@ export const getImageUrl = (imagePath) => {
     // If imagePath already includes '/images/', format correctly
     if (imagePath.includes('/images/')) {
       // Ensure there's a slash between baseUrl and imagePath
-      const fullUrl = `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
-      console.log('Admin - Image URL with /images/:', fullUrl);
+      const fullUrl = `${cleanBaseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+      if (!isProduction) console.log('Admin - Image URL with /images/:', fullUrl);
       return fullUrl;
     }
     
     // Handle case when image is just a filename (most common from backend)
     if (!imagePath.includes('/')) {
-      const fullUrl = `${baseUrl}/images/${imagePath}`;
-      console.log('Admin - Image URL from filename:', fullUrl);
+      const fullUrl = `${cleanBaseUrl}/images/${imagePath}`;
+      if (!isProduction) console.log('Admin - Image URL from filename:', fullUrl);
       return fullUrl;
     }
     
@@ -37,8 +43,8 @@ export const getImageUrl = (imagePath) => {
     const filename = imagePath.split('/').pop();
     
     // Format the URL to the backend images endpoint
-    const fullUrl = `${baseUrl}/images/${filename}`;
-    console.log('Admin - Final image URL:', fullUrl);
+    const fullUrl = `${cleanBaseUrl}/images/${filename}`;
+    if (!isProduction) console.log('Admin - Final image URL:', fullUrl);
     return fullUrl;
   } catch (err) {
     console.error('Admin - Error formatting image URL:', err);

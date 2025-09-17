@@ -21,8 +21,28 @@ const port = process.env.PORT || 5000;
 // middlewares
 app.use(express.json())
 // Update CORS configuration
+const allowedOrigins = [
+  // Local development
+  'http://localhost:5173', 
+  'http://localhost:5174', 
+  'http://[::1]:5173', 
+  'http://[::1]:5174',
+  // Render deployed frontends (update these URLs after deployment)
+  'https://foodease-frontend.onrender.com',
+  'https://foodease-admin.onrender.com'
+];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://[::1]:5173', 'http://[::1]:5174'],
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests, etc)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'token']

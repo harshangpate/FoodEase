@@ -1,0 +1,49 @@
+# Render deployment configuration
+services:
+  # Backend API service
+  - type: web
+    name: foodease-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false # You'll need to manually add this in the Render dashboard
+      - key: JWT_SECRET
+        generateValue: true # This will auto-generate a secure value
+      - key: NODE_ENV
+        value: production
+    plan: free
+
+  # Frontend static site
+  - type: web
+    name: foodease-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: foodease-backend
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+    plan: free
+
+  # Admin panel static site
+  - type: web
+    name: foodease-admin
+    env: static
+    rootDir: admin
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: foodease-backend
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+    plan: free
