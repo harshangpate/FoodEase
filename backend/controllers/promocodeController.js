@@ -1,4 +1,4 @@
-import promocodeModel from "../models/promocodemodel.js";
+import promocodeModel from "../models/promocodeModel.js";
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
 
