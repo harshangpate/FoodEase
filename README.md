@@ -1,5 +1,11 @@
 # FoodEase - Canteen Management System
 
+## 🌐 Live Deployment
+
+- **Student App**: [https://foodeaseuser.netlify.app/](https://foodeaseuser.netlify.app/)
+- **Admin Dashboard**: [https://foodeaseadmin.netlify.app/](https://foodeaseadmin.netlify.app/)
+- **Backend API**: [https://foodease-backend-zanj.onrender.com/](https://foodease-backend-zanj.onrender.com/)
+
 ## Overview
 
 FoodEase is a comprehensive canteen management system designed specifically for ITM (SLS) Baroda University. The platform streamlines the food ordering process by allowing students to browse menus, place orders in advance, and make payments through a convenient QR-based system. By eliminating long queues and providing real-time order tracking, FoodEase enhances the campus dining experience while helping canteen staff manage orders more efficiently.
@@ -141,13 +147,17 @@ cd ../admin
 npm run dev
 ```
 
-9\. Access the application (currently not hosted on web, for localhost use only)
+9\. Access the application
 
+### Local Development
 - Frontend: http://localhost:5173
-
 - Admin Dashboard: http://localhost:5174
-
 - Backend API: http://localhost:5000
+
+### Live Deployment
+- Frontend: https://foodeaseuser.netlify.app/
+- Admin Dashboard: https://foodeaseadmin.netlify.app/
+- Backend API: https://foodease-backend-zanj.onrender.com/
 
 ## 🚀 Usage
 
