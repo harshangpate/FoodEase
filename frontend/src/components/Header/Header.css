@@ -2,9 +2,9 @@
 .header{
     height: 34vw;
     margin: 30px auto;
-    background: url('src/assets/header_img.jpg') no-repeat;
+    background-repeat: no-repeat;
     border-radius: 16px;
-    background-size:cover;
+    background-size: cover;
     position: relative;
 }
 .header-contents{
