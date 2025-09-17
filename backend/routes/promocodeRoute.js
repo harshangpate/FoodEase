@@ -1,5 +1,5 @@
 import express from "express";
-import { validatePromocode, createPromocode, getAllPromocodes, getActivePromocodes, togglePromoStatus, recordUsedPromocode } from "../controllers/promocodecontroller.js";
+import { validatePromocode, createPromocode, getAllPromocodes, getActivePromocodes, togglePromoStatus, recordUsedPromocode } from "../controllers/promocodeController.js";
 import authMiddleware from "../middleware/auth.js";
 
 const router = express.Router();
