@@ -7,7 +7,7 @@ This repository contains three components:
 
 ## Deployment Architecture
 
-- **Backend**: Deployed on Replit (free tier)
+- **Backend**: Deployed on Railway.app (free tier)
 - **Frontend**: Deployed on Netlify (free tier)
 - **Admin Panel**: Deployed on Netlify (free tier, separate site)
 
@@ -15,17 +15,17 @@ This repository contains three components:
 
 After deployment, you'll need to update these environment variables:
 
-### Backend (Replit)
+### Backend (Railway)
 - `MONGODB_URI`: MongoDB Atlas connection string
 - `JWT_SECRET`: Secret key for JWT token generation
-- `PORT`: 3000 (Replit default)
+- `PORT`: 3000
 - `NODE_ENV`: production
 
 ### Frontend (Netlify)
-- `VITE_API_URL`: Your Replit backend URL (e.g., https://foodease-backend.yourusername.repl.co)
+- `VITE_API_URL`: Your Railway backend URL (e.g., https://foodease-backend-production.up.railway.app)
 
 ### Admin Panel (Netlify)
-- `VITE_API_URL`: Your Replit backend URL (e.g., https://foodease-backend.yourusername.repl.co)
+- `VITE_API_URL`: Your Railway backend URL (e.g., https://foodease-backend-production.up.railway.app)
 
 ## CORS Configuration
 
@@ -33,30 +33,41 @@ The backend is already configured to accept requests from Netlify domains. If yo
 
 ## Deployment Instructions
 
-### Backend Deployment (Replit)
+### Backend Deployment (Railway)
 
-1. **Create a Replit account** at [replit.com](https://replit.com)
+1. **Create a Railway account** at [railway.app](https://railway.app)
+   - Sign up using GitHub (recommended) or email
+   - No credit card required for the free tier
 
-2. **Create a new Node.js project**:
-   - Click on "Create Repl"
-   - Select "Import from GitHub"
-   - Paste your GitHub repository URL
-   - Select "Node.js" as the language
-   - Click "Import from GitHub"
+2. **Create a new project**:
+   - Click "New Project" on your dashboard
+   - Select "Deploy from GitHub repo"
+   - Connect your GitHub account if prompted
+   - Select your FoodEase repository
+   - Choose the "backend" directory as your project root
+   - Select "Node" as the template
 
 3. **Configure environment variables**:
-   - Click on "Secrets" (lock icon) in the left sidebar
-   - Add the following secrets:
+   - Click on the "Variables" tab
+   - Add the following variables:
      - `MONGODB_URI`: Your MongoDB Atlas connection string
      - `JWT_SECRET`: A strong secret key for JWT tokens
-     - `NODE_ENV`: "production"
+     - `PORT`: 3000
+     - `NODE_ENV`: production
 
-4. **Run the server**:
-   - Click on "Run" at the top of the Replit interface
-   - Your backend will be deployed and available at the URL shown
+4. **Configure build settings**:
+   - Go to the "Settings" tab
+   - Set Root Directory to `/backend`
+   - Set Build Command to `npm install`
+   - Set Start Command to `npm start`
 
-5. **Copy your backend URL**:
-   - It will look like: https://foodease-backend.yourusername.repl.co
+5. **View your deployed application**:
+   - Go to the "Settings" tab
+   - Look for "Domains" section to find your URL
+   - Your backend will be available at a URL like: `https://foodease-backend-production.up.railway.app`
+   - Test it by adding `/health` to the URL
+
+6. **Copy your backend URL**:
    - You'll need this URL for the frontend and admin panel deployments
 
 ### Frontend Deployment (Netlify)
@@ -125,9 +136,9 @@ The backend is already configured to accept requests from Netlify domains. If yo
 ## Troubleshooting
 
 ### Backend Issues
-- If your backend goes to sleep on Replit, it will wake up on the first request (may take a few seconds)
-- Check the Replit console for error messages
+- Check the Railway deployment logs for error messages
 - Verify that MongoDB Atlas is properly configured to accept connections from anywhere
+- Make sure your environment variables are set correctly
 
 ### Frontend/Admin Issues
 - Check browser console for errors
@@ -136,10 +147,10 @@ The backend is already configured to accept requests from Netlify domains. If yo
 
 ## Limitations of Free Tier Hosting
 
-1. **Replit Free Tier Limitations**:
-   - Backend will go to sleep after inactivity
-   - First request after sleep will be slow
-   - Limited storage (files uploaded to the server may be lost)
+1. **Railway Free Tier Limitations**:
+   - Limited compute hours per month
+   - Projects may sleep after inactivity
+   - Limited storage (files uploaded to the server may be lost when unused)
 
 2. **Netlify Free Tier Limitations**:
    - Limited build minutes per month

@@ -27,14 +27,17 @@ const allowedOrigins = [
   'http://localhost:5174', 
   'http://[::1]:5173', 
   'http://[::1]:5174',
-  // Render deployed frontends (update these URLs after deployment)
+  // Render deployed frontends
   'https://foodease-frontend.onrender.com',
   'https://foodease-admin.onrender.com',
-  // Netlify deployed frontends (will add specific URLs after deployment)
+  // Netlify deployed frontends
   'https://foodease-frontend.netlify.app',
   'https://foodease-admin.netlify.app',
   // Allow all Netlify domains during development
-  '.netlify.app'
+  '.netlify.app',
+  // Railway domains
+  '.railway.app',
+  '.up.railway.app'
 ];
 
 app.use(cors({
