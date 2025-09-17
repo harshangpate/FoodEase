@@ -10,6 +10,7 @@ export const getImageUrl = (imagePath) => {
   
   try {
     // Get the API base URL from environment variables with explicit production fallback
+    // Default to Render.com URL if VITE_API_URL is not set in production
     const baseUrl = isProduction 
       ? (import.meta.env.VITE_API_URL || 'https://foodease-backend-zanj.onrender.com')
       : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
