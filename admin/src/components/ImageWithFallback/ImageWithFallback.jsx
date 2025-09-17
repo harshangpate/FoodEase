@@ -17,9 +17,14 @@ const ImageWithFallback = ({ src, alt, className, ...props }) => {
     
     // Generate URL using the helper function
     try {
-      // Use default food image rendering instead of trying to load potentially missing images
-      // This is a simple, reliable solution for the admin panel
-      setImageUrl(getImageUrl(src));
+      // First try the Render.com backend URL
+      const renderUrl = `https://foodease-backend-zanj.onrender.com/images/${src.split('/').pop()}`;
+      setImageUrl(renderUrl);
+      
+      // Fallback to the helper function if needed
+      if (import.meta.env.DEV) {
+        setImageUrl(getImageUrl(src));
+      }
     } catch (err) {
       console.error('Error processing image URL:', err);
       setError(true);

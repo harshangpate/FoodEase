@@ -9,8 +9,10 @@ export const getImageUrl = (imagePath) => {
   }
   
   try {
-    // Get the API base URL from environment variables
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    // Get the API base URL from environment variables with explicit production fallback
+    const baseUrl = isProduction 
+      ? (import.meta.env.VITE_API_URL || 'https://foodease-backend-zanj.onrender.com')
+      : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
     
     // Clean the base URL to ensure it doesn't have trailing spaces or comments
     const cleanBaseUrl = baseUrl.trim().split(' ')[0];
