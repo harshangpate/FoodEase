@@ -5,7 +5,10 @@ export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
 
-    const url = import.meta.env.VITE_API_URL || "http://localhost:5000"
+    // Make sure URL doesn't end with a slash to prevent double slashes
+    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const url = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    
     const [food_list, setFoodList] = useState([]);
     const [cartItems, setCartItems] = useState({});
     const [token, setToken] = useState("")

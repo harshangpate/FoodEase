@@ -6,6 +6,10 @@ import { toast } from 'react-toastify';
 import moment from 'moment';
 import './ProfilePage.css';
 
+// Make sure URL doesn't end with a slash to prevent double slashes
+const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
 const ProfilePage = () => {
   const { currentUser, token } = useAuth();
   const navigate = useNavigate();
@@ -58,9 +62,9 @@ const ProfilePage = () => {
       setError(null);
       try {
         console.log('Fetching profile data with token:', token);
-        console.log('API URL:', import.meta.env.VITE_API_URL);
+        console.log('API URL:', apiUrl);
         
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/profile`, {
+        const response = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: {
             token: token
           }
@@ -97,7 +101,7 @@ const ProfilePage = () => {
       try {
         console.log('Fetching orders with token:', token);
         
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/order/userorders`, {}, {
+        const response = await axios.post(`${apiUrl}/api/order/userorders`, {}, {
           headers: {
             token: token
           }
@@ -137,7 +141,7 @@ const ProfilePage = () => {
     e.preventDefault();
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/user/update-profile`,
+        `${apiUrl}/api/user/update-profile`,
         formData,
         {
           headers: {
@@ -162,7 +166,7 @@ const ProfilePage = () => {
       const [month, year] = selectedMonth.split('-');
       
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/reports/monthly/${currentUser.id}?month=${month}&year=${year}`,
+        `${apiUrl}/api/reports/monthly/${currentUser.id}?month=${month}&year=${year}`,
         {
           headers: {
             token: token

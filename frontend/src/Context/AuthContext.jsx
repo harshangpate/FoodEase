@@ -12,13 +12,17 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
+  
+  // Make sure URL doesn't end with a slash to prevent double slashes
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
   // Check if user is logged in on component mount
   useEffect(() => {
     const verifyUser = async () => {
       if (token) {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/profile`, {
+          const response = await axios.get(`${apiUrl}/api/user/profile`, {
             headers: {
               token: token
             }
@@ -49,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/login`, {
+      const response = await axios.post(`${apiUrl}/api/user/login`, {
         email,
         password
       });
@@ -60,7 +64,7 @@ export const AuthProvider = ({ children }) => {
         setToken(userToken);
         
         // Fetch user profile after login
-        const profileResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/profile`, {
+        const profileResponse = await axios.get(`${apiUrl}/api/user/profile`, {
           headers: {
             token: userToken
           }
@@ -93,7 +97,7 @@ export const AuthProvider = ({ children }) => {
   // Register function
   const register = async (userData) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/register`, userData);
+      const response = await axios.post(`${apiUrl}/api/user/register`, userData);
       
       if (response.data.success) {
         // Auto login after registration

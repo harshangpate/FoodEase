@@ -33,6 +33,8 @@ const allowedOrigins = [
   // Netlify deployed frontends
   'https://foodease-frontend.netlify.app',
   'https://foodease-admin.netlify.app',
+  'https://foodeaseuser.netlify.app',
+  'https://foodeaseadmin.netlify.app',
   // Allow all Netlify domains during development
   '.netlify.app',
   // Railway domains
@@ -45,7 +47,13 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps, curl requests, etc)
     if (!origin) return callback(null, true);
     
+    // Check if the origin contains netlify.app (for all Netlify sites)
+    if (origin.includes('netlify.app')) {
+      return callback(null, true);
+    }
+    
     if (allowedOrigins.indexOf(origin) === -1) {
+      console.log('Blocked origin:', origin);
       const msg = 'The CORS policy for this site does not allow access from the specified origin.';
       return callback(new Error(msg), false);
     }

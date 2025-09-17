@@ -7,7 +7,9 @@ import profile_image from './profile_image.png'
 import upload_area from './upload_area.png'
 import parcel_icon from './parcel_icon.png'
 
-export const url = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+// Make sure URL doesn't end with a slash to prevent double slashes
+const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+export const url = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 export const currency = '₹'
 
 export const assets ={

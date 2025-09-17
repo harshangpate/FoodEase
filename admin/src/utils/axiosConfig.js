@@ -1,9 +1,13 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+// Make sure URL doesn't end with a slash to prevent double slashes
+const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  baseURL: apiUrl,
 });
 
 // Function to handle logout and redirect
