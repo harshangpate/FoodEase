@@ -1,0 +1,16 @@
+entrypoint = "server.js"
+modules = ["nodejs-18:v3-20230608-f4cd419"]
+
+hidden = [".config", "package-lock.json"]
+
+[nix]
+channel = "stable-23_11"
+
+[deployment]
+run = ["node", "server.js"]
+deploymentTarget = "cloudrun"
+ignorePorts = false
+
+[env]
+PORT = "3000"
+NODE_ENV = "production"

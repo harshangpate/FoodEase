@@ -29,7 +29,12 @@ const allowedOrigins = [
   'http://[::1]:5174',
   // Render deployed frontends (update these URLs after deployment)
   'https://foodease-frontend.onrender.com',
-  'https://foodease-admin.onrender.com'
+  'https://foodease-admin.onrender.com',
+  // Netlify deployed frontends (will add specific URLs after deployment)
+  'https://foodease-frontend.netlify.app',
+  'https://foodease-admin.netlify.app',
+  // Allow all Netlify domains during development
+  '.netlify.app'
 ];
 
 app.use(cors({
@@ -50,6 +55,15 @@ app.use(cors({
 
 // db connection
 connectDB()
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "healthy", 
+    message: "FoodEase API is running", 
+    time: new Date().toISOString()
+  });
+});
 
 // api endpoints
 app.use("/api/user", userRouter)

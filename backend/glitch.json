@@ -1,0 +1,15 @@
+{
+  "install": "npm install",
+  "start": "node server.js",
+  "watch": {
+    "ignore": [
+      "uploads/*",
+      "invoices/*",
+      "reports/*",
+      "node_modules/*"
+    ]
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
