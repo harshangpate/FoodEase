@@ -16,7 +16,7 @@ services:
         generateValue: true # This will auto-generate a secure value
       - key: NODE_ENV
         value: production
-    plan: free
+    plan: starter
 
   # Frontend static site
   - type: web
@@ -31,7 +31,7 @@ services:
           name: foodease-backend
           type: web
           envVarKey: RENDER_EXTERNAL_URL
-    plan: free
+    plan: starter
 
   # Admin panel static site
   - type: web
@@ -46,4 +46,4 @@ services:
           name: foodease-backend
           type: web
           envVarKey: RENDER_EXTERNAL_URL
-    plan: free
+    plan: starter
