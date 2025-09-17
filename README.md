@@ -141,7 +141,7 @@ cd ../admin
 npm run dev
 ```
 
-9\. Access the application
+9\. Access the application (currently not hosted on web, for localhost use only)
 
 - Frontend: http://localhost:5173
 
