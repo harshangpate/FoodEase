@@ -251,9 +251,9 @@ FoodEase/
 
 ## 👥 Contributors
 
-- Harshang Patel
-- Shivansh Patel
-- Siddharaj Parmar
+- Harshang Patel ([GitHub](https://github.com/harshangpate), [LinkedIn](https://www.linkedin.com/in/harshang-patel-075003285/))
+- Shivansh Patel ([Github](https://github.com/codewithSVP), [LinkedIn](https://www.linkedin.com/in/codewithsvp/))
+- Siddharaj Parmar ([GitHub](https://github.com/Siddharaj-Parmar), [LinkedIn](https://www.linkedin.com/in/siddharaj-parmar/))
 
 ## 📄 License
 
