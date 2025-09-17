@@ -39,7 +39,12 @@ const ImageWithFallback = ({ src, alt, className, ...props }) => {
     const colorIndex = foodName.charCodeAt(0) % bgColors.length;
     const bgColor = bgColors[colorIndex];
     
-    return `https://placehold.co/400x300/${bgColor}/white?text=${encodeURIComponent(foodName)}`;
+    // Log the image loading error for debugging
+    console.error('Image loading error for:', name, '- Using placeholder');
+    
+    // Return a placeholder with the food name (just the first word for cleaner display)
+    const displayName = foodName.split(' ')[0];
+    return `https://placehold.co/400x300/${bgColor}/white?text=${encodeURIComponent(displayName)}`;
   };
   
   const fallbackImage = generateFoodPlaceholder(alt);
@@ -48,8 +53,11 @@ const ImageWithFallback = ({ src, alt, className, ...props }) => {
     <img
       src={error ? fallbackImage : imageUrl}
       alt={alt || 'Food item'}
+      onError={(e) => {
+        console.error('Image failed to load:', imageUrl);
+        setError(true);
+      }}
       className={className}
-      onError={() => setError(true)}
       {...props}
     />
   );

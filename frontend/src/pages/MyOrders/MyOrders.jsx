@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import './MyOrders.css'
 import axios from 'axios'
+import { Link } from 'react-router-dom'
 import { StoreContext } from '../../Context/StoreContext';
 import { assets } from '../../assets/assets';
 import { toast } from 'react-toastify';
@@ -110,6 +111,9 @@ const MyOrders = () => {
                   </b></p>
                 </div>
                 <div className="order-actions">
+                  <Link to={`/order/${order._id}`} className="btn-view">
+                    View Details
+                  </Link>
                   <button onClick={fetchOrders}>Track Order</button>
                   {canCancelOrder(order.status) && (
                     <button

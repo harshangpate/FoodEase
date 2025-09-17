@@ -15,6 +15,10 @@ export const getImageUrl = (imagePath) => {
     // Make sure URL doesn't end with a slash to prevent double slashes
     const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     
+    // Debug the image path
+    console.log('Image path:', imagePath);
+    console.log('API URL:', apiUrl);
+    
     // If the image path already contains the full URL, return it as is
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       return imagePath;
