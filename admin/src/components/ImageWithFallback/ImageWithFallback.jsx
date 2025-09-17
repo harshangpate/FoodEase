@@ -18,6 +18,7 @@ const ImageWithFallback = ({ src, alt, className, ...props }) => {
     // Generate URL using the helper function
     try {
       // First try the Render.com backend URL
+      // This assumes images are served from /images/ endpoint
       const renderUrl = `https://foodease-backend-zanj.onrender.com/images/${src.split('/').pop()}`;
       setImageUrl(renderUrl);
       
