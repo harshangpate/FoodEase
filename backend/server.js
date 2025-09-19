@@ -76,6 +76,9 @@ app.get("/health", (req, res) => {
   });
 });
 
+// Serve static files from the public directory
+app.use(express.static('public'));
+
 // api endpoints
 app.use("/api/user", userRouter)
 app.use("/api/food", foodRouter)
@@ -86,9 +89,11 @@ app.use("/api/admin", adminRouter)
 app.use('/api/promocode', promocodeRoute);
 app.use('/api/user-management', userManagementRouter);
 app.use('/api/reports', reportRouter);
+
+// Root route - serve the API documentation page
 app.get("/", (req, res) => {
-    res.send("API Working")
-  });
+    res.sendFile('index.html', { root: './public' });
+});
 
 dotenv.config()
 
